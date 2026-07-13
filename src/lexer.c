@@ -1,6 +1,8 @@
 #include "lexer.h"
 #include <ctype.h>
+#include <stdlib.h>
 #include <stdbool.h>
+#include <string.h>
 
 static void skip_ws(Lexer *lexer);
 static Token lex_num(Lexer *lexer);

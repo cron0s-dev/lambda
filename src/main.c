@@ -21,7 +21,13 @@ int main(void)
 
         Parser parser;
         parser_init(&parser, &lexer);
+
         Expr *expr = parse_expr(&parser);
+        if (strcmp(expr->ident, "clear") == 0) {
+            printf("\033[2J\033[H");
+            continue;
+        }
+
         printf("%g\n", eval_expr(expr));
     }
     free(src);
