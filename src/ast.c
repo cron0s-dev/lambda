@@ -1,4 +1,5 @@
 #include "ast.h"
+
 #include <string.h>
 #include <stdlib.h>
 
@@ -14,14 +15,18 @@ static char *slicetstr(const char *base, size_t len)
     return str;
 }
 
-Expr *expr_num(double value)
+Expr *expr_num(const char *base, size_t len)
 {
+    char *str = slicetstr(base, len);
+    if (!str)
+        return NULL;
+
     Expr *expr = malloc(sizeof(*expr));
     if (!expr)
         return NULL;
 
     expr->type = EXPR_NUM;
-    expr->num = value;
+    expr->num = strtod(str, NULL);
 
     return expr;
 }
@@ -31,13 +36,13 @@ Expr *expr_ident(const char *base, size_t len)
     if (!base || len <= 0)
         return NULL;
 
+    char *str = slicetstr(base, len);
+    if (!str)
+        return NULL;
+
     Expr *expr = malloc(sizeof(*expr));
     if (!expr)
         return NULL;
-
-    char *str = slicetstr(base, len);
-    if (!str)
-        NULL;
 
     expr->type = EXPR_IDENT;
     expr->ident = str;
@@ -86,13 +91,13 @@ Expr *expr_call(const char *base, size_t len, Expr **args, size_t arg_count)
         arg_count <= 0)
         return NULL;
 
+    char *str = slicetstr(base, len);
+    if (!str)
+        return NULL;
+
     Expr *expr = malloc(sizeof(*expr));
     if (!expr)
         return NULL;
-
-    char *str = slicetstr(base, len);
-    if (!str)
-        NULL;
 
     expr->type = EXPR_CALL;
     expr->call.name = str;
@@ -104,6 +109,9 @@ Expr *expr_call(const char *base, size_t len, Expr **args, size_t arg_count)
 
 void expr_free(Expr *expr)
 {
+    if (!expr)
+        return;
+
     switch (expr->type) {
         case EXPR_IDENT:
             free(expr->ident);

@@ -38,10 +38,11 @@ typedef struct Expr {
     };
 } Expr;
 
-Expr *expr_num(double value);
+Expr *expr_num(const char *base, size_t len);
 Expr *expr_ident(const char *base, size_t len);
 Expr *expr_binary(char op, Expr *left, Expr *right);
 Expr *expr_unary(char op, Expr *operand);
 Expr *expr_call(const char *base, size_t len, Expr **args, size_t arg_count);
+void expr_free(Expr *expr);
 
 #endif

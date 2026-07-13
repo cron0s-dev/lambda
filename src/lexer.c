@@ -7,14 +7,14 @@ static Token lex_num(Lexer *lexer);
 static Token lex_ident(Lexer *lexer);
 static Token lex_op(Lexer *lexer);
 
-void lexer_init(Lexer *lexer, const char *src)
+void lex_init(Lexer *lexer, const char *src)
 {
     lexer->src = src;
     lexer->start = src;
     lexer->p = src;
 }
 
-Token lexer_next(Lexer *lexer)
+Token lex_next(Lexer *lexer)
 {
     skip_ws(lexer);
 
@@ -39,9 +39,8 @@ static Token lex_num(Lexer *lexer)
     or a dot. If we have already seen a dot,
     then we stop. Otherwise, we continue. */
     while (isdigit((unsigned char)*lexer->p) ||
-           (!dot && (dot = *lexer->p == '.'))) {
+           (!dot && (dot = *lexer->p == '.')))
         lexer->p++;
-    }
 
     tok.len = lexer->p - lexer->start;
     tok.type = TOKEN_NUM;

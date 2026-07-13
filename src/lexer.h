@@ -32,7 +32,7 @@ typedef struct {
     const char *p;
 } Lexer;
 
-void lexer_init(Lexer *lexer, const char *src);
-Token lexer_next(Lexer *lexer);
+void lex_init(Lexer *lexer, const char *src);
+Token lex_next(Lexer *lexer);
 
 #endif
