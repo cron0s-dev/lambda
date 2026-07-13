@@ -23,7 +23,7 @@ Token lex_next(Lexer *lexer)
     if (isdigit((unsigned char)*lexer->start))
         return lex_num(lexer);
 
-    if (isalpha((unsigned char)*lexer->start) || *lexer->p == '_')
+    if (isalnum((unsigned char)*lexer->start) || *lexer->p == '_')
         return lex_ident(lexer);
 
     return lex_op(lexer);
@@ -56,7 +56,7 @@ static Token lex_ident(Lexer *lexer)
 
     tok.base = lexer->start;
 
-    while (isalpha((unsigned char)*lexer->p) || *lexer->p == '_')
+    while (isalnum((unsigned char)*lexer->p) || *lexer->p == '_')
         lexer->p++;
 
     tok.len = lexer->p - lexer->start;

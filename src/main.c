@@ -1,3 +1,4 @@
+#include "ast.h"
 #include "lexer.h"
 #include "parser.h"
 #include "eval.h"
@@ -23,7 +24,8 @@ int main(void)
         parser_init(&parser, &lexer);
 
         Expr *expr = parse_expr(&parser);
-        if (strcmp(expr->ident, "clear") == 0) {
+        if (expr->type == EXPR_IDENT && 
+            strcmp(expr->ident, "clear") == 0) {
             printf("\033[2J\033[H");
             continue;
         }
