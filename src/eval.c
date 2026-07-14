@@ -61,22 +61,13 @@ double eval_binary(const Expr *expr)
 double eval_call(const Expr *expr)
 {
     double val = 0.0;
-    for (size_t i = 0; i < sizeof(builtins) / sizeof(builtins[0]); i++) {
-        Builtin *builtin = &builtins[i];
 
-        if (strcmp(expr->call.name, builtin->name) == 0) {
-            if (expr->call.arg_count != builtin->arg_count &&
-                    builtin->arg_count >= 0)
-                return 0.0;
+    double args[expr->call.arg_count];
 
-            double args[expr->call.arg_count];
+    for (size_t j = 0; j < expr->call.arg_count; j++)
+        args[j] = eval_expr(expr->call.args[j]);
 
-            for (size_t j = 0; j < expr->call.arg_count; j++)
-                args[j] = eval_expr(expr->call.args[j]);
-
-            val =  builtin->func(args, expr->call.arg_count);
-        }
-    }
+    val = expr->call.func(args, expr->call.arg_count);
 
     val = fabs(val) < 1e-15 ? 0 : val;
 

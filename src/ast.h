@@ -1,6 +1,8 @@
 #ifndef AST_H
 #define AST_H
 
+#include "func.h" 
+
 #include <stdio.h>
 
 typedef enum {
@@ -31,7 +33,8 @@ typedef struct Expr {
         } unary;
 
         struct {
-            char* name;
+            char *name;
+            BuiltinFunc func;
             struct Expr **args;
             size_t arg_count;
         } call;

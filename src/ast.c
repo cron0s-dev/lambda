@@ -102,8 +102,18 @@ Expr *expr_call(const char *base, size_t len, Expr **args, size_t arg_count)
 
     expr->type = EXPR_CALL;
     expr->call.name = str;
+    expr->call.func = NULL;
     expr->call.args = args;
     expr->call.arg_count = arg_count;
+
+    for (size_t i = 0; i < sizeof(builtins) / sizeof(builtins[0]); i++) {
+        Builtin *builtin = &builtins[i];
+
+        if (strcmp(expr->call.name, builtin->name) == 0) {
+            expr->call.func = builtin->func;
+            break;
+        }
+    }
 
     return expr;
 }
@@ -128,7 +138,7 @@ void expr_free(Expr *expr)
             break;
 
         case EXPR_CALL:
-            free(expr->call.name);
+            // free(expr->call.name);
             for (size_t i = 0; i < expr->call.arg_count; i++)
                 expr_free(expr->call.args[i]);
             free(expr->call.args);
