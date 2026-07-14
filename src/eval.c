@@ -2,13 +2,14 @@
 #include "ast.h"
 
 #include <math.h>
+#include <float.h>
 #include <string.h>
 
 typedef double (*BuiltinFunc)(double *args, size_t count);
 
 typedef struct {
     const char *name;
-    size_t arg_count;
+    int arg_count;
     BuiltinFunc func;
 } Builtin;
 
@@ -125,9 +126,84 @@ static double fn_sqrt(double *args, size_t count)
     return sqrt(args[0]);
 }
 
+static double fn_cbrt(double *args, size_t count)
+{
+    return cbrt(args[0]);
+}
+
 static double fn_root(double *args, size_t count)
 {
     return pow(args[0], 1.0 / args[1]);
+}
+
+static double fn_hypot(double *args, size_t count)
+{
+    if (count < 2)
+        return 0.0;
+
+    double radicand = 0.0;
+
+    for (size_t i = 0; i < count; i++)
+       radicand += args[i] * args[i];
+
+    return sqrt(radicand);
+}
+
+static double fn_gamma(double *args, size_t count)
+{
+    return tgamma(args[0] + 1.0);
+}
+
+static double fn_mean(double *args, size_t count)
+{
+    if (count < 2)
+        return 0.0;
+
+    double sum = 0.0;
+
+    for (size_t i = 0; i < count; i++)
+       sum += args[i];
+
+    return sum / count;
+}
+
+static double fn_rms(double *args, size_t count)
+{
+    if (count < 2)
+        return 0.0;
+
+    double sum = 0.0;
+
+    for (size_t i = 0; i < count; i++)
+       sum += args[i] * args[i];
+
+    return sqrt(sum / count);
+}
+
+static double fn_sum(double *args, size_t count)
+{
+    if (count < 2)
+        return 0.0;
+
+    double sum = 0.0;
+
+    for (size_t i = 0; i < count; i++)
+       sum += args[i];
+
+    return sum;
+}
+
+static double fn_prod(double *args, size_t count)
+{
+    if (count < 2)
+        return 0.0;
+
+    double prod = 1.0;
+
+    for (size_t i = 0; i < count; i++)
+       prod *= args[i];
+
+    return prod;
 }
 
 static Builtin builtins[] = {
@@ -159,7 +235,16 @@ static Builtin builtins[] = {
 
     {"pow",   2, fn_pow},
     {"sqrt",  1, fn_sqrt},
+    {"cbrt",  1, fn_cbrt},
     {"root",  2, fn_root},
+    {"hypot", -1, fn_hypot},
+
+    {"gamma",  1, fn_gamma},
+
+    {"sum", -1, fn_sum},
+    {"prod", -1, fn_prod},
+    {"mean", -1, fn_mean},
+    {"rms", -1, fn_rms},
 };
 
 typedef struct {
@@ -188,25 +273,30 @@ static Constant constants[] = {
 
 double eval_expr(const Expr *expr)
 {
+    double val = 0.0;
     switch (expr->type) {
         case EXPR_NUM:
-            return expr->num;
+            val = expr->num;
+            break;
 
         case EXPR_UNARY:
-            return eval_unary(expr);
+            val = eval_unary(expr);
+            break;
 
         case EXPR_BINARY:
-            return eval_binary(expr);
+            val = eval_binary(expr);
+            break;
 
         case EXPR_CALL:
-            return eval_call(expr);
+            val = eval_call(expr);
+            break;
 
         case EXPR_IDENT:
-            return eval_ident(expr);
+            val = eval_ident(expr);
             break;
     }
 
-    return 0.0;
+    return val;
 }
 
 double eval_binary(const Expr *expr)
@@ -234,12 +324,14 @@ double eval_binary(const Expr *expr)
 
 double eval_call(const Expr *expr)
 {
+    double val = 0.0;
     for (size_t i = 0; i < sizeof(builtins) / sizeof(builtins[0]); i++) {
         Builtin *builtin = &builtins[i];
 
         if (strcmp(expr->call.name, builtin->name) == 0) {
 
-            if (expr->call.arg_count != builtin->arg_count)
+            if (expr->call.arg_count != builtin->arg_count &&
+                builtin->arg_count >= 0)
                 return 0.0;
 
             double args[expr->call.arg_count];
@@ -247,11 +339,13 @@ double eval_call(const Expr *expr)
             for (size_t j = 0; j < expr->call.arg_count; j++)
                 args[j] = eval_expr(expr->call.args[j]);
 
-            return builtin->func(args, expr->call.arg_count);
+            val =  builtin->func(args, expr->call.arg_count);
         }
     }
 
-    return 0.0;
+    val = fabs(val) < 1e-15 ? 0 : val;
+
+    return val;
 }
 
 double eval_unary(const Expr *expr)
@@ -264,6 +358,9 @@ double eval_unary(const Expr *expr)
 
         case '-':
             return -operand;
+
+        case '!':
+            return tgamma(operand + 1.0);
     }
 
     return 0.0;

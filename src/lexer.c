@@ -97,6 +97,9 @@ static Token lex_op(Lexer *lexer)
         case '^':
             tok.type = TOKEN_CARET;
             break;
+        case '!':
+            tok.type = TOKEN_EXCLAMATION;
+            break;
         case '(':
             tok.type = TOKEN_LPAREN;
             break;

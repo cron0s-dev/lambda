@@ -4,6 +4,7 @@
 
 #include <stdio.h>
 #include <stdlib.h>
+#include <stdbool.h>
 
 void parser_init(Parser *parser, Lexer *lexer)
 {
@@ -32,16 +33,30 @@ Expr *parse_expr(Parser *parser)
     return expr;
 }
 
+bool starts_primary(TokenType t)
+{
+    return t == TOKEN_NUM   ||
+           t == TOKEN_IDENT ||
+           t == TOKEN_LPAREN;
+}
+
 Expr *parse_term(Parser *parser)
 {
     Expr *expr = parse_power(parser);
 
-    while (parser->tok.type == TOKEN_STAR  ||
-           parser->tok.type == TOKEN_SLASH ||
-           parser->tok.type == TOKEN_PERCENT) {
-        char op = *parser->tok.base;
+    while (parser->tok.type == TOKEN_STAR    ||
+           parser->tok.type == TOKEN_SLASH   ||
+           parser->tok.type == TOKEN_PERCENT ||
+           starts_primary(parser->tok.type)) {
+        char op;
 
-        parser_advance(parser);
+        if (parser->tok.type == TOKEN_STAR ||
+            parser->tok.type == TOKEN_SLASH ||
+            parser->tok.type == TOKEN_PERCENT) {
+            op = *parser->tok.base;
+            parser_advance(parser);
+        } else 
+            op = '*';
 
         expr = expr_binary(op, expr, parse_power(parser));
     }
@@ -64,26 +79,30 @@ Expr *parse_power(Parser *parser)
     return expr;
 }
 
-Expr *parse_unary(Parser *parser)
+Expr *parse_postfix(Parser *parser)
 {
-    Expr *expr = NULL;
+    Expr *expr = parse_primary(parser);
 
-    switch (parser->tok.type) {
-        case TOKEN_PLUS:
-        case TOKEN_MINUS:
-            {
-                char op = *parser->tok.base;
-                parser_advance(parser);
-                expr = expr_unary(op, parse_unary(parser));
-                break;
-            }
-
-        default:
-            expr = parse_primary(parser);
-            break;
+    while (parser->tok.type == TOKEN_EXCLAMATION)
+    {
+        parser_advance(parser);
+        expr = expr_unary('!', expr);
     }
 
     return expr;
+}
+
+Expr *parse_unary(Parser *parser)
+{
+    if (parser->tok.type == TOKEN_PLUS ||
+        parser->tok.type == TOKEN_MINUS)
+    {
+        char op = *parser->tok.base;
+        parser_advance(parser);
+        return expr_unary(op, parse_unary(parser));
+    }
+
+    return parse_postfix(parser);
 }
 
 Expr *parse_primary(Parser *parser)

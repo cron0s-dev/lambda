@@ -30,7 +30,7 @@ int main(void)
             continue;
         }
 
-        printf("%g\n", eval_expr(expr));
+        printf("%.17g\n", eval_expr(expr));
     }
     free(src);
     
