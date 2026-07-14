@@ -28,6 +28,7 @@ Expr *expr_num(const char *base, size_t len)
     expr->type = EXPR_NUM;
     expr->num = strtod(str, NULL);
 
+    free(str);
     return expr;
 }
 

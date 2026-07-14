@@ -4,9 +4,14 @@
 #include "lexer.h"
 #include "ast.h"
 
+#include <stdbool.h>
+
 typedef struct {
     Lexer lexer;
     Token tok;
+
+    bool had_error;
+    char error_msg[256];
 } Parser;
 
 void parser_init(Parser *p, Lexer *lexer);

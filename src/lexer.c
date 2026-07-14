@@ -1,8 +1,6 @@
 #include "lexer.h"
 #include <ctype.h>
-#include <stdlib.h>
 #include <stdbool.h>
-#include <string.h>
 
 static void skip_ws(Lexer *lexer);
 static Token lex_num(Lexer *lexer);
@@ -25,6 +23,8 @@ Token lex_next(Lexer *lexer)
 
     if (isalnum((unsigned char)*lexer->start) || *lexer->p == '_')
         return lex_ident(lexer);
+
+    lexer->p = lexer->start;
 
     return lex_op(lexer);
 }
@@ -77,6 +77,7 @@ static Token lex_op(Lexer *lexer)
     switch (c) {
         case '\0':
             tok.type = TOKEN_EOF;
+            tok.base = NULL;
             tok.len = 0;
             break;
         case '+':
