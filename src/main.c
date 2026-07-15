@@ -11,7 +11,7 @@ int main(void)
 {
     char *src = malloc(512);
     for (;;) {
-        printf("λ > ");
+        printf("󰘧 > ");
 
         fgets(src, 512, stdin);
 

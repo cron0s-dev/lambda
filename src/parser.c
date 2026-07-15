@@ -1,7 +1,6 @@
 #include "parser.h"
 #include "lexer.h"
 #include "ast.h"
-#include "func.h"
 
 #include <stdio.h>
 #include <stdlib.h>
@@ -246,7 +245,7 @@ Expr *parse_primary(Parser *parser)
                 expr = expr_call(base, len, args, arg_count);
 
                 if (!expr->call.func) {
-                    parser_errorf(parser, "error: unknown function: '%s'\n",
+                    parser_errorf(parser, "error: unknown function '%s'\n",
                             expr->call.name);
                     expr_free(expr);
                     return NULL;
