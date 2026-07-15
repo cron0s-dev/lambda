@@ -184,7 +184,7 @@ static double fn_hypot(double *args, size_t count)
 
 static double fn_gamma(double *args, size_t count)
 {
-    return tgamma(args[0] + 1.0);
+    return tgamma(args[0]);
 }
 
 static double fn_erf(double *args, size_t count)
