@@ -2,12 +2,19 @@
 #include "lexer.h"
 #include "parser.h"
 #include "eval.h"
+#include "color.h"
 
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
 
-#define PROMPT "λ > "
+#define PROMPT_SYM "λ"
+#define PROMPT_CHAR '>'
+#define PROMPT "%s%s%s %c ",\
+            COLOR_YELLOW,\
+            PROMPT_SYM,\
+            COLOR_RESET,\
+            PROMPT_CHAR
 
 #ifdef _WIN32
 
@@ -39,6 +46,31 @@ char *get_input(void)
 
 #endif
 
+void print_error(const char *msg)
+{
+    putc('\n', stdout);
+    fprintf(stderr, " %serror:%s %s", COLOR_RED, COLOR_RESET, msg);
+    putc('\n', stdout);
+}
+
+void print_expr_result(const char* line, const Expr *expr)
+{
+    putc('\n', stdout);
+    printf(" %s%s%s = %s%.15g%s\n",
+            COLOR_BOLD,
+            COLOR_RESET,
+            line,
+            COLOR_GREEN,
+            eval_expr(expr),
+            COLOR_RESET);
+    putc('\n', stdout);
+}
+
+void term_clear()
+{
+    printf(TERM_CLEAR);
+}
+
 int main(void)
 {
     for (;;) {
@@ -56,8 +88,8 @@ int main(void)
 
         Expr *expr = parse_expr(&parser);
         if (!expr) {
-           fprintf(stderr, " %s", parser.error_msg);
-           continue;
+            print_error(parser.error_msg);
+            continue;
         }
 
         if (expr->type == EXPR_IDENT && 
@@ -70,7 +102,7 @@ int main(void)
 
         if (expr->type == EXPR_IDENT && 
             strcmp(expr->ident, "clear") == 0) {
-            printf("\033[2J\033[H");
+            term_clear();
             continue;
         }
 
@@ -79,7 +111,7 @@ int main(void)
             exit(0);
         }
 
-        printf(" %s = %.15g\n", line, eval_expr(expr));
+        print_expr_result(line, expr);
         expr_free(expr);
 
         free(line);

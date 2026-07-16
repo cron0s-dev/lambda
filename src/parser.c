@@ -1,6 +1,7 @@
 #include "parser.h"
 #include "lexer.h"
 #include "ast.h"
+#include "color.h"
 
 #include <stdio.h>
 #include <stdlib.h>
@@ -39,8 +40,10 @@ static bool parser_advance(Parser *parser)
 
     if (parser->tok.type == TOKEN_INVALID) {
         parser_errorf(parser,
-            "error: invalid token \'%.*s\'\n",
+            "invalid token \'%s%.*s%s\'\n",
+            COLOR_YELLOW,
             (int)parser->tok.len,
+            COLOR_RESET,
             parser->tok.base);
 
         return false;
@@ -60,8 +63,10 @@ Expr *parse_expr(Parser *parser)
     if (!left) {
         if (parser->tok.type != TOKEN_EOF)
             parser_errorf(parser,
-                    "error: expected expression before \'%c\'\n",
-                    op);
+                    "expected expression before \'%s%c%s\'\n",
+                    COLOR_YELLOW,
+                    op,
+                    COLOR_RESET);
         return NULL;
     }
 
@@ -77,12 +82,16 @@ Expr *parse_expr(Parser *parser)
         if (!right) {
             if (parser->tok.type != TOKEN_EOF)
                 parser_errorf(parser,
-                        "error: expected expression after \'%c\'\n",
-                        op);
+                        "expected expression after \'%s%c%s\'\n",
+                        COLOR_YELLOW,
+                        op,
+                        COLOR_RESET);
             else
                 parser_errorf(parser,
-                        "error: expected expression after \'%c\', got end of input\n",
-                        op);
+                        "expected expression after \'%s%c%s\', got end of input\n",
+                        COLOR_YELLOW,
+                        op,
+                        COLOR_RESET);
             return NULL;
         }
 
@@ -114,8 +123,10 @@ Expr *parse_term(Parser *parser)
     if (!left) {
         if (parser->tok.type != TOKEN_EOF)
             parser_errorf(parser,
-                    "error: expected expression before \'%c\'\n",
-                    op);
+                    "expected expression before \'%s%c%s\'\n",
+                    COLOR_YELLOW,
+                    op,
+                    COLOR_RESET);
         return NULL;
     }
 
@@ -138,12 +149,16 @@ Expr *parse_term(Parser *parser)
         if (!right) {
             if (parser->tok.type != TOKEN_EOF)
                 parser_errorf(parser,
-                        "error: expected expression after \'%c\'\n",
-                        op);
+                        "expected expression after \'%s%c%s\'\n",
+                        COLOR_YELLOW,
+                        op,
+                        COLOR_RESET);
             else
                 parser_errorf(parser,
-                        "error: expected expression after \'%c\', got end of input\n",
-                        op);
+                        "expected expression after \'%s%c%s\', got end of input\n",
+                        COLOR_YELLOW,
+                        op,
+                        COLOR_RESET);
             return NULL;
         }
 
@@ -168,8 +183,10 @@ Expr *parse_power(Parser *parser)
     if (!left) {
         if (parser->tok.type != TOKEN_EOF)
             parser_errorf(parser,
-                    "error: expected expression before \'%c\'\n",
-                    op);
+                    "expected expression before \'%s%c%s\'\n",
+                    COLOR_YELLOW,
+                    op,
+                    COLOR_RESET);
         return NULL;
     }
 
@@ -183,12 +200,16 @@ Expr *parse_power(Parser *parser)
         if (!right) {
             if (parser->tok.type != TOKEN_EOF)
                 parser_errorf(parser,
-                        "error: expected expression after \'%c\'\n",
-                        op);
+                        "expected expression after \'%s%c%s\'\n",
+                        COLOR_YELLOW,
+                        op,
+                        COLOR_RESET);
             else
                 parser_errorf(parser,
-                        "error: expected expression afer \'%c\', got end of input\n",
-                        op);
+                        "expected expression after \'%s%c%s\', got end of input\n",
+                        COLOR_YELLOW,
+                        op,
+                        COLOR_RESET);
             expr_free(left);
             return NULL;
         }
@@ -234,8 +255,10 @@ Expr *parse_unary(Parser *parser)
 
         if (!operand) {
             parser_errorf(parser,
-                    "error: expected expression after '%c'\n",
-                    op);
+                    "expected expression after \'%s%c%s\'\n",
+                    COLOR_YELLOW,
+                    op,
+                    COLOR_RESET);
             return NULL;
         }
 
@@ -291,9 +314,11 @@ Expr *parse_primary(Parser *parser)
 
                         if (!arg) {
                             parser_errorf(parser,
-                                    "error: function \'%.*s\': expected argument expression\n",
+                                    "function \'%s%.*s%s\': expected argument expression\n",
+                                    COLOR_CYAN,
                                     (int)len,
-                                    base);
+                                    base,
+                                    COLOR_RESET);
                             return NULL;
                         }
 
@@ -312,21 +337,29 @@ Expr *parse_primary(Parser *parser)
                 if (parser->tok.type != TOKEN_RPAREN) {
                     if (parser->tok.type == TOKEN_EOF)
                         parser_errorf(parser,
-                                "error: expected ')', got end of input\n");
+                                "expected '%s)%s', got end of input\n",
+                                COLOR_YELLOW,
+                                COLOR_RESET);
                     else
                         parser_errorf(parser,
-                                "error: expected ')', got '%.*s'\n",
+                                "expected '%s)%s', got '%s%.*s%s'\n",
+                                COLOR_YELLOW,
+                                COLOR_RESET,
+                                COLOR_YELLOW,
                                 (int)parser->tok.len,
-                                parser->tok.base);
+                                parser->tok.base,
+                                COLOR_RESET);
                     expr_free(left);
                     return NULL;
                 }
 
                 if (arg_count == 0) {
                     parser_errorf(parser,
-                            "error: function \'%.*s\' : at least a single parameter must be passed\n",
+                            "function \'%s%.*s%s\' : at least a single parameter must be passed\n",
+                            COLOR_CYAN,
                             (int)len,
-                            base);
+                            base,
+                            COLOR_RESET);
                     expr_free(left);
                     return NULL;
                 }
@@ -338,23 +371,27 @@ Expr *parse_primary(Parser *parser)
                 
                 if (!left->call.args_valid) {
                     parser_errorf(parser,
-                            "error: function \'%.*s\': argument count does not match function prototype\n",
+                            "function \'%s%.*s%s\': argument count does not match function prototype\n",
+                            COLOR_CYAN,
                             (int)len,
-                            base);
+                            base,
+                            COLOR_RESET);
                     expr_free(left);
                     return NULL;
                 }
 
                 if (!left) {
                     parser_errorf(parser,
-                            "error: expected expression inside parentheses\n");
+                            "expected expression inside parentheses\n");
                     return NULL;
                 }
 
                 if (!left->call.func) {
-                    parser_errorf(parser, "error: unknown function '%.*s'\n",
+                    parser_errorf(parser, "unknown function '%s%.*s%s'\n",
+                            COLOR_MAGENTA,
                             (int)len,
-                            base);
+                            base,
+                            COLOR_RESET);
                     expr_free(left);
                     return NULL;
                 }
@@ -371,7 +408,7 @@ Expr *parse_primary(Parser *parser)
             if (!left) {
                 if (!parser->had_error) {
                     parser_errorf(parser,
-                            "error: expected expression inside parentheses\n");
+                            "expected expression inside parentheses\n");
                 }
                 return NULL;
             }
@@ -379,10 +416,14 @@ Expr *parse_primary(Parser *parser)
             if (parser->tok.type != TOKEN_RPAREN) {
                 if (parser->tok.type == TOKEN_EOF)
                     parser_errorf(parser,
-                            "error: expected ')', got end of input\n");
+                            "expected '%s)%s', got end of input\n",
+                            COLOR_YELLOW,
+                            COLOR_RESET);
                 else
                     parser_errorf(parser,
-                            "error: expected ')', got '%.*s'\n",
+                            "expected '%s)%s', got '%.*s'\n",
+                            COLOR_YELLOW,
+                            COLOR_RESET,
                             (int)parser->tok.len,
                             parser->tok.base);
                 expr_free(left);
