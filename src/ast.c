@@ -105,11 +105,15 @@ Expr *expr_call(const char *base, size_t len, Expr **args, size_t arg_count)
     expr->call.func = NULL;
     expr->call.args = args;
     expr->call.arg_count = arg_count;
+    expr->call.args_valid = true;
 
     for (size_t i = 0; i < sizeof(builtins) / sizeof(builtins[0]); i++) {
         Builtin *builtin = &builtins[i];
 
         if (strcmp(expr->call.name, builtin->name) == 0) {
+            if (arg_count != builtins[i].arg_count &&
+                    builtins[i].arg_count >= 0)
+                expr->call.args_valid = false;
             expr->call.func = builtin->func;
             break;
         }

@@ -4,6 +4,7 @@
 #include "func.h" 
 
 #include <stdio.h>
+#include <stdbool.h>
 
 typedef enum {
     EXPR_NUM,
@@ -37,6 +38,7 @@ typedef struct Expr {
             BuiltinFunc func;
             struct Expr **args;
             size_t arg_count;
+            bool args_valid;
         } call;
     };
 } Expr;
