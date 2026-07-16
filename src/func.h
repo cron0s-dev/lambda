@@ -93,6 +93,11 @@ static double fn_cos(double *args, size_t count)
 
 static double fn_tan(double *args, size_t count)
 {
+    double c = cos(args[0]);
+    
+    if (fabs(c) < 1e-12)
+        return NAN;
+
     return tan(args[0]);
 }
 
@@ -128,6 +133,11 @@ static double fn_sec(double *args, size_t count)
 
 static double fn_cot(double *args, size_t count)
 {
+    double s = sin(args[0]);
+    
+    if (fabs(s) < 1e-12)
+        return NAN;
+
     return 1.0 / tan(args[0]);
 }
 
@@ -209,16 +219,25 @@ static double fn_pow(double *args, size_t count)
 
 static double fn_sqrt(double *args, size_t count)
 {
+    if (args[0] < 0.0)
+        return NAN;
+
     return sqrt(args[0]);
 }
 
 static double fn_cbrt(double *args, size_t count)
 {
+    if (args[0] < 0.0)
+        return NAN;
+
     return cbrt(args[0]);
 }
 
 static double fn_root(double *args, size_t count)
 {
+    if (args[0] < 0.0)
+        return NAN;
+
     return pow(args[0], 1.0 / args[1]);
 }
 

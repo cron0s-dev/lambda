@@ -48,6 +48,8 @@ double eval_binary(const Expr *expr)
         case '*':
             return left * right;
         case '/':
+            if (right == 0)
+                return NAN;
             return left / right;
         case '%':
             return fmod(left, right);
@@ -87,6 +89,9 @@ double eval_unary(const Expr *expr)
 
         case '!':
             return tgamma(operand + 1.0);
+
+        default:
+            return operand; 
     }
 
     return 0.0;
