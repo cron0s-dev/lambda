@@ -16,7 +16,7 @@ typedef enum {
     TOKEN_EXCLAMATION,
     TOKEN_LPAREN,
     TOKEN_RPAREN,
-    TOKEN_EQUAL,
+    // TOKEN_EQUAL,
     TOKEN_COMMA,
     TOKEN_INVALID
 } TokenKind;
