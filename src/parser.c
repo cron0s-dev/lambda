@@ -35,32 +35,47 @@ static void parser_advance(Parser *parser)
 
 Expr *parse_expr(Parser *parser)
 {
-    Expr *expr = parse_term(parser);
+    char op = '\0';
+    if (parser->tok.type != TOKEN_EOF)
+        op = *parser->tok.base;
+    
+    Expr *left = parse_term(parser);
 
-    if (!expr) {
+    if (!left) {
+        if (parser->tok.type != TOKEN_EOF)
+            parser_errorf(parser,
+                    "error: expected expression before \'%c\'\n",
+                    op);
         return NULL;
     }
 
     while (parser->tok.type == TOKEN_PLUS ||
            parser->tok.type == TOKEN_MINUS) {
-        char op = *parser->tok.base;
+        op = *parser->tok.base;
 
         parser_advance(parser);
 
         Expr *right = parse_term(parser);
 
         if (!right) {
+            if (parser->tok.type != TOKEN_EOF)
+                parser_errorf(parser,
+                        "error: expected expression after \'%c\'\n",
+                        op);
+            else
+                parser_errorf(parser,
+                        "error: expected expression, got end of input\n");
             return NULL;
         }
 
-        expr = expr_binary(op, expr, right);
+        left = expr_binary(op, left, right);
 
-        if (!expr) {
+        if (!left) {
             return NULL;
         }
     }
 
-    return expr;
+    return left;
 }
 
 bool starts_primary(TokenType t)
@@ -72,9 +87,17 @@ bool starts_primary(TokenType t)
 
 Expr *parse_term(Parser *parser)
 {
-    Expr *expr = parse_power(parser);
+    char op = '\0';
+    if (parser->tok.type != TOKEN_EOF)
+        op = *parser->tok.base;
 
-    if (!expr) {
+    Expr *left = parse_unary(parser);
+
+    if (!left) {
+        if (parser->tok.type != TOKEN_EOF)
+            parser_errorf(parser,
+                    "error: expected expression before \'%c\'\n",
+                    op);
         return NULL;
     }
 
@@ -82,7 +105,6 @@ Expr *parse_term(Parser *parser)
            parser->tok.type == TOKEN_SLASH   ||
            parser->tok.type == TOKEN_PERCENT ||
            starts_primary(parser->tok.type)) {
-        char op;
 
         if (parser->tok.type == TOKEN_STAR ||
             parser->tok.type == TOKEN_SLASH ||
@@ -92,90 +114,111 @@ Expr *parse_term(Parser *parser)
         } else 
             op = '*';
 
-        Expr *right = parse_power(parser);
+        Expr *right = parse_unary(parser);
 
         if (!right) {
+            if (parser->tok.type != TOKEN_EOF)
+                parser_errorf(parser,
+                        "error: expected expression after \'%c\'\n",
+                        op);
+            else
+                parser_errorf(parser,
+                        "error: expected expression, got end of input\n");
             return NULL;
         }
 
-        expr = expr_binary(op, expr, right);
+        left = expr_binary(op, left, right);
 
-        if (!expr) {
+        if (!left) {
             return NULL;
         }
     }
 
-    return expr;
+    return left;
 }
 
 Expr *parse_power(Parser *parser)
 {
-    Expr *expr = parse_unary(parser);
+    char op = '\0';
+    if (parser->tok.type != TOKEN_EOF)
+        op = *parser->tok.base;
 
-    if (!expr) {
+    Expr *left = parse_postfix(parser);
+
+    if (!left) {
+        if (parser->tok.type != TOKEN_EOF)
+            parser_errorf(parser,
+                    "error: expected expression before \'%c\'\n",
+                    op);
         return NULL;
     }
 
     if (parser->tok.type == TOKEN_CARET) {
-        char op = *parser->tok.base;
+        op = *parser->tok.base;
 
         parser_advance(parser);
 
-        Expr *right = parse_power(parser);
-
+        Expr *right = parse_unary(parser);
         if (!right) {
-            return NULL;
+            if (parser->tok.type != TOKEN_EOF)
+                parser_errorf(parser,
+                        "error: expected expression after \'%c\'\n",
+                        op);
+            else
+                parser_errorf(parser,
+                        "error: expected expression, got end of input\n");
         }
 
-        expr = expr_binary(op, expr, right);
+        left = expr_binary(op, left, right);
 
-        if (!expr) {
+        if (!left) {
             return NULL;
         }
     }
 
-    return expr;
+    return left;
 }
 
 Expr *parse_postfix(Parser *parser)
 {
-    Expr *expr = parse_primary(parser);
+    Expr *left = parse_primary(parser);
 
-    if (!expr) {
+    if (!left) {
         return NULL;
     }
 
     while (parser->tok.type == TOKEN_EXCLAMATION)
     {
         parser_advance(parser);
-        expr = expr_unary('!', expr);
+        left = expr_unary('!', left);
     }
 
-    return expr;
+    return left;
 }
 
 Expr *parse_unary(Parser *parser)
 {
     if (parser->tok.type == TOKEN_PLUS ||
-        parser->tok.type == TOKEN_MINUS)
-    {
+        parser->tok.type == TOKEN_MINUS) {
+
         char op = *parser->tok.base;
         parser_advance(parser);
+
         return expr_unary(op, parse_unary(parser));
     }
 
-    return parse_postfix(parser);
+    return parse_power(parser);
 }
 
 Expr *parse_primary(Parser *parser)
 {
-    Expr *expr = NULL;
+    Expr *left = NULL;
 
     switch (parser->tok.type) {
         case TOKEN_NUM:
-            expr = expr_num(parser->tok.base, parser->tok.len);
+            left = expr_num(parser->tok.base, parser->tok.len);
 
-            if (!expr) {
+            if (!left) {
                 return NULL;
             }
 
@@ -190,13 +233,15 @@ Expr *parse_primary(Parser *parser)
                 parser_advance(parser);
 
                 if (parser->tok.type != TOKEN_LPAREN) {
-                    expr = expr_ident(base, len);
+                    left = expr_ident(base, len);
                     break;
                 }
 
                 Expr **args = malloc(sizeof(*args) * 16);
-                if (!args)
+                if (!args) {
+                    free(args);
                     return NULL;
+                }
 
                 size_t arg_count = 0;
 
@@ -223,31 +268,34 @@ Expr *parse_primary(Parser *parser)
 
                 if (parser->tok.type != TOKEN_RPAREN) {
                     if (parser->tok.type == TOKEN_EOF)
-                        parser_errorf(parser, "expected ')', got end of input\n");
+                        parser_errorf(parser, "error: expected ')', got end of input\n");
                     else
                         parser_errorf(parser,
-                                "expected ')', got '%.*s'\n",
+                                "error: expected ')', got '%.*s'\n",
                                 (int)parser->tok.len,
                                 parser->tok.base);
-                    expr_free(expr);
+                    expr_free(left);
                     return NULL;
                 }
 
                 if (arg_count == 0) {
                     parser_errorf(parser, "error: %.*s: at least a single parameter must be passed\n",
                             (int)len, base);
-                    expr_free(expr);
+                    expr_free(left);
                     return NULL;
                 }
 
                 parser_advance(parser);
 
-                expr = expr_call(base, len, args, arg_count);
+                left = expr_call(base, len, args, arg_count);
 
-                if (!expr->call.func) {
+                if (!left)
+                    return NULL;
+
+                if (!left->call.func) {
                     parser_errorf(parser, "error: unknown function '%s'\n",
-                            expr->call.name);
-                    expr_free(expr);
+                            left->call.name);
+                    expr_free(left);
                     return NULL;
                 }
 
@@ -257,15 +305,16 @@ Expr *parse_primary(Parser *parser)
         case TOKEN_LPAREN:
             parser_advance(parser);
 
-            expr = parse_expr(parser);
+            left = parse_expr(parser);
 
-            if (!expr)
+            if (!left)
                 return NULL;
 
             if (parser->tok.type != TOKEN_RPAREN) {
-                parser_errorf(parser, "error: expected \')\', got \'%c\'\n",
-                        *parser->tok.base);
-                expr_free(expr);
+                if (parser->tok.type != TOKEN_EOF)
+                    parser_errorf(parser, "error: expected \')\', got \'%c\'\n",
+                            *parser->tok.base);
+                expr_free(left);
                 return NULL;
             }
 
@@ -274,9 +323,8 @@ Expr *parse_primary(Parser *parser)
 
         default:
             parser_errorf(parser, "error: invalid expression\n");
-            expr_free(expr);
             return NULL;
     }
 
-    return expr;
+    return left;
 }

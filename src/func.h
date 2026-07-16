@@ -20,19 +20,62 @@ typedef struct {
 } Constant;
 
 static Constant constants[] = {
-    {"pi",  M_PI},
+    // Mathematical constants
     {"e",   M_E},
+    {"pi",  M_PI},
     {"tau", 2 * M_PI},
-
-    {"phi", 1.618033988749895},
+    {"ln2", M_LN2},
+    {"ln10", M_LN10},
     {"sqrt2", 1.4142135623730951},
     {"sqrt3", 1.2599210498948732},
+    {"phi", 1.618033988749895},
+
+    // Universal constants
 
     {"c",  299792458.0},
     {"G",  6.67430e-11},
     {"h",  6.62607015e-34},
+    {"hbar", 1.054571817e-34},
     {"kB", 1.380649e-23},
     {"Na", 6.02214076e23},
+    {"R", 8.314462618},
+    {"e_charge", 1.602176634e-19},
+    {"epsilon0", 8.8541878128e-12},
+    {"mu0", 1.25663706212e-6},
+    {"M_sun", 1.98847e30},
+    {"R_sun", 6.957e8},
+
+    // Astronomical constants
+
+    {"M_earth", 5.9722e24},
+    {"R_earth", 6.371e6},
+    {"M_moon", 7.342e22},
+    {"R_moon", 1.7374e6},
+    {"AU", 1.495978707e11},
+    {"ly", 9.460730472e15},
+    {"pc", 3.085677581e16},
+
+    {"a0", 5.29177210903e-11},
+    {"alpha", 7.2973525693e-3},
+    {"m_electron", 9.1093837139e-31},
+    {"m_proton", 1.67262192595e-27},
+    {"m_neutron", 1.67492750056e-27},
+
+    {"sigma", 5.670374419e-8},
+    {"g", 9.80665},
+
+    {"atm", 101325.0},
+    {"bar", 100000.0},
+    {"coulomb", 8.9875517923e9},
+    {"Z0", 376.730313668},
+
+    {"amu", 1.66053906660e-27},
+    {"F", 96485.33212},
+
+    {"inch", 0.0254},
+    {"foot", 0.3048},
+    {"mile", 1609.344},
+    {"zero_C", 273.15},
 
     {"deg", 180.0 / M_PI},
     {"rad", M_PI / 180.0},
@@ -128,6 +171,16 @@ static double fn_rad(double * args, size_t count)
     return args[0] * M_PI / 180.0;
 }
 
+static double fn_exp(double *args, size_t count)
+{
+    return exp(args[0]);
+}
+
+static double fn_exp2(double *args, size_t count)
+{
+    return exp2(args[0]);
+}
+
 static double fn_log(double *args, size_t count)
 {
     if (count > 2)
@@ -217,6 +270,31 @@ static double fn_rms(double *args, size_t count)
 
     return sqrt(sum / count);
 }
+
+static double fn_abs(double *args, size_t count)
+{
+    return fabs(args[0]);
+} 
+
+static double fn_round(double *args, size_t count)
+{
+    return round(args[0]);
+} 
+
+static double fn_floor(double *args, size_t count)
+{
+    return floor(args[0]);
+} 
+
+static double fn_ceil(double *args, size_t count)
+{
+    return ceil(args[0]);
+} 
+
+static double fn_trunc(double *args, size_t count)
+{
+    return trunc(args[0]);
+} 
 
 static double fn_sum(double *args, size_t count)
 {
@@ -327,6 +405,9 @@ static Builtin builtins[] = {
     {"deg", 1, fn_deg},
     {"rad", 1, fn_rad},
 
+    {"exp", 1, fn_exp},
+    {"exp2", 1, fn_exp2},
+
     {"log",   -1, fn_log},
     {"ln",    1, fn_ln},
     {"log2",  1, fn_log2},
@@ -339,6 +420,12 @@ static Builtin builtins[] = {
 
     {"gamma",  1, fn_gamma},
     {"erf", 1, fn_erf},
+
+    {"abs", 1, fn_abs},
+    {"round", 1, fn_round},
+    {"floor", 1, fn_floor},
+    {"ceil", 1, fn_ceil},
+    {"trunc", 1, fn_trunc},
 
     {"sum", -1, fn_sum},
     {"sum_range", 2, fn_sum_range},

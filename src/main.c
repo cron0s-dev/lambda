@@ -24,9 +24,17 @@ int main(void)
         parser_init(&parser, &lexer);
 
         Expr *expr = parse_expr(&parser);
-        if (!expr) {
+        if (!expr && parser.had_error) {
            fprintf(stderr, " %s", parser.error_msg);
            continue;
+        }
+
+        if (expr->type == EXPR_IDENT && 
+            strcmp(expr->ident, "var") == 0) {
+
+            for (size_t i = 0; i < sizeof(constants) / sizeof(constants[0]); i++)
+                printf("%s = %.17g\n", constants[i].name, constants[i].value);
+            continue;
         }
 
         if (expr->type == EXPR_IDENT && 
