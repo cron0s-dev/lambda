@@ -11,6 +11,8 @@
 
 #ifdef _WIN32
 
+#include <windows.h>
+
 char *get_input(void)
 {
     char *src = malloc(512);
