@@ -9,30 +9,30 @@
 
 double eval_expr(const Expr *expr)
 {
-    double val = 0.0;
+    double res = 0.0;
     switch (expr->type) {
         case EXPR_NUM:
-            val = expr->num;
+            res = expr->num;
             break;
 
         case EXPR_UNARY:
-            val = eval_unary(expr);
+            res = eval_unary(expr);
             break;
 
         case EXPR_BINARY:
-            val = eval_binary(expr);
+            res = eval_binary(expr);
             break;
 
         case EXPR_CALL:
-            val = eval_call(expr);
+            res = eval_call(expr);
             break;
 
         case EXPR_IDENT:
-            val = eval_ident(expr);
+            res = eval_ident(expr);
             break;
     }
 
-    return val;
+    return res;
 }
 
 double eval_binary(const Expr *expr)
