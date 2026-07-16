@@ -7,25 +7,47 @@
 #include <stdlib.h>
 #include <string.h>
 
+#define PROMPT "λ > "
+
 #ifdef _WIN32
-#include <windows.h>
+
+char *get_input(void)
+{
+    char *src = malloc(512);
+    fgets(src, 512, stdin);
+
+    src[strcspn(src, "\n")] = '\0';
+    return src;
+}
+
+#else
+
+#include <readline/readline.h>
+#include <readline/history.h>
+
+char *get_input(void)
+{
+    char *line = readline(PROMPT);
+
+    if (line && *line)
+        add_history(line);
+
+    return line;
+}
+
 #endif
 
 int main(void)
 {
-    char *src = malloc(512);
     for (;;) {
 #ifdef _WIN32
         SetConsoleOutputCP(CP_UTF8);
+        printf(PROMPT);
 #endif
-        printf("λ > ");
-
-        fgets(src, 512, stdin);
-
-        src[strcspn(src, "\n")] = '\0';
+        char *line = get_input();
 
         Lexer lexer;
-        lex_init(&lexer, src);
+        lex_init(&lexer, line);
 
         Parser parser;
         parser_init(&parser, &lexer);
@@ -55,10 +77,11 @@ int main(void)
             exit(0);
         }
 
-        printf(" %s = %.15g\n", src, eval_expr(expr));
+        printf(" %s = %.15g\n", line, eval_expr(expr));
         expr_free(expr);
+
+        free(line);
     }
-    free(src);
     
     return 0;
 }
