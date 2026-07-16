@@ -352,7 +352,7 @@ Expr *parse_primary(Parser *parser)
                 }
 
                 if (!left->call.func) {
-                    parser_errorf(parser, "error: unknown function '%s'\n",
+                    parser_errorf(parser, "error: unknown function '%.*s'\n",
                             (int)len,
                             base);
                     expr_free(left);
