@@ -81,7 +81,8 @@ Expr *parse_expr(Parser *parser)
                         op);
             else
                 parser_errorf(parser,
-                        "error: expected expression, got end of input\n");
+                        "error: expected expression after \'%c\', got end of input\n",
+                        op);
             return NULL;
         }
 
@@ -141,7 +142,8 @@ Expr *parse_term(Parser *parser)
                         op);
             else
                 parser_errorf(parser,
-                        "error: expected expression, got end of input\n");
+                        "error: expected expression after \'%c\', got end of input\n",
+                        op);
             return NULL;
         }
 
@@ -185,7 +187,8 @@ Expr *parse_power(Parser *parser)
                         op);
             else
                 parser_errorf(parser,
-                        "error: expected expression, got end of input\n");
+                        "error: expected expression afer \'%c\', got end of input\n",
+                        op);
             expr_free(left);
             return NULL;
         }
