@@ -10,6 +10,9 @@
 
 void parser_errorf(Parser *parser, const char *fmt, ...)
 {
+    if (parser->had_error)
+        return;
+
     va_list args;
 
     parser->had_error = true;
@@ -24,7 +27,9 @@ void parser_errorf(Parser *parser, const char *fmt, ...)
 
 void parser_init(Parser *parser, Lexer *lexer)
 {
-    parser->lexer = *lexer;    
+    parser->lexer = *lexer;
+    parser->had_error = false;
+    parser->error_msg[0] = '\0';
     parser->tok = lex_next(&parser->lexer);
 }
 
@@ -167,6 +172,8 @@ Expr *parse_power(Parser *parser)
             else
                 parser_errorf(parser,
                         "error: expected expression, got end of input\n");
+            expr_free(left);
+            return NULL;
         }
 
         left = expr_binary(op, left, right);
@@ -204,7 +211,16 @@ Expr *parse_unary(Parser *parser)
         char op = *parser->tok.base;
         parser_advance(parser);
 
-        return expr_unary(op, parse_unary(parser));
+        Expr *operand = parse_unary(parser);
+
+        if (!operand) {
+            parser_errorf(parser,
+                    "error: expected expression after '%c'\n",
+                    op);
+            return NULL;
+        }
+
+        return expr_unary(op, operand);
     }
 
     return parse_power(parser);
@@ -239,6 +255,9 @@ Expr *parse_primary(Parser *parser)
 
                 Expr **args = malloc(sizeof(*args) * 16);
                 if (!args) {
+                    for (size_t i = 0; i < 16; i++)
+                        expr_free(args[i]);
+
                     free(args);
                     return NULL;
                 }
@@ -252,6 +271,8 @@ Expr *parse_primary(Parser *parser)
                         Expr *arg = parse_expr(parser);
 
                         if (!arg) {
+                            parser_errorf(parser,
+                                    "error: expected argument expression\n");
                             return NULL;
                         }
 
@@ -267,9 +288,7 @@ Expr *parse_primary(Parser *parser)
                 }
 
                 if (parser->tok.type != TOKEN_RPAREN) {
-                    if (parser->tok.type == TOKEN_EOF)
-                        parser_errorf(parser, "error: expected ')', got end of input\n");
-                    else
+                    if (parser->tok.type != TOKEN_EOF)
                         parser_errorf(parser,
                                 "error: expected ')', got '%.*s'\n",
                                 (int)parser->tok.len,
@@ -289,8 +308,13 @@ Expr *parse_primary(Parser *parser)
 
                 left = expr_call(base, len, args, arg_count);
 
-                if (!left)
+                if (!left) {
+                    if (!parser->had_error) {
+                        parser_errorf(parser,
+                                "error: expected expression inside parentheses\n");
+                    }
                     return NULL;
+                }
 
                 if (!left->call.func) {
                     parser_errorf(parser, "error: unknown function '%s'\n",
@@ -307,8 +331,13 @@ Expr *parse_primary(Parser *parser)
 
             left = parse_expr(parser);
 
-            if (!left)
+            if (!left) {
+                if (!parser->had_error) {
+                    parser_errorf(parser,
+                            "error: expected expression inside parentheses\n");
+                }
                 return NULL;
+            }
 
             if (parser->tok.type != TOKEN_RPAREN) {
                 if (parser->tok.type != TOKEN_EOF)
@@ -322,7 +351,6 @@ Expr *parse_primary(Parser *parser)
             break;
 
         default:
-            parser_errorf(parser, "error: invalid expression\n");
             return NULL;
     }
 

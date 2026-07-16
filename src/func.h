@@ -72,13 +72,13 @@ static Constant constants[] = {
     {"amu", 1.66053906660e-27},
     {"F", 96485.33212},
 
-    {"inch", 0.0254},
-    {"foot", 0.3048},
-    {"mile", 1609.344},
+    // {"inch", 2.54},
+    // {"foot", 0.3048},
+    // {"mile", 1609.344},
     {"zero_C", 273.15},
 
-    {"deg", 180.0 / M_PI},
-    {"rad", M_PI / 180.0},
+    {"rad", 180.0 / M_PI},
+    {"deg", M_PI / 180.0},
 };
 
 static double fn_sin(double *args, size_t count)
@@ -380,6 +380,16 @@ static double fn_lcm(double *args, size_t count)
     return val;
 }
 
+static double fn_fahrenheit(double *args, size_t count)
+{
+    return args[0] * 9.0 / 5.0 + 32.0;
+}
+
+static double fn_celsius(double *args, size_t count)
+{
+    return (args[0] - 32.0) * 5.0 / 9.0;
+}
+
 static Builtin builtins[] = {
     {"sin",   1, fn_sin},
     {"cos",   1, fn_cos},
@@ -435,6 +445,9 @@ static Builtin builtins[] = {
     {"rms", -1, fn_rms},
     {"gcd", -1, fn_gcd},
     {"lcm", -1, fn_lcm},
+
+    {"celsius", 1, fn_celsius},
+    {"fahrenheit", 1, fn_fahrenheit},
 };
 
 #endif

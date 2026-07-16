@@ -24,7 +24,7 @@ int main(void)
         parser_init(&parser, &lexer);
 
         Expr *expr = parse_expr(&parser);
-        if (!expr && parser.had_error) {
+        if (!expr) {
            fprintf(stderr, " %s", parser.error_msg);
            continue;
         }
@@ -48,7 +48,7 @@ int main(void)
             exit(0);
         }
 
-        printf(" %s = %.17g\n", src, eval_expr(expr));
+        printf(" %s = %.15g\n", src, eval_expr(expr));
         expr_free(expr);
     }
     free(src);
