@@ -19,12 +19,12 @@ typedef enum {
     TOKEN_EQUAL,
     TOKEN_COMMA,
     TOKEN_INVALID
-} TokenType;
+} TokenKind;
 
 typedef struct {
     const char *base;
     size_t len;
-    TokenType type;
+    TokenKind type;
 } Token;
 
 typedef struct {
