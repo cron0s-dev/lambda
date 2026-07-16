@@ -291,7 +291,9 @@ Expr *parse_primary(Parser *parser)
 
                         if (!arg) {
                             parser_errorf(parser,
-                                    "error: expected argument expression\n");
+                                    "error: function \'%.*s\': expected argument expression\n",
+                                    (int)len,
+                                    base);
                             return NULL;
                         }
 
@@ -321,8 +323,10 @@ Expr *parse_primary(Parser *parser)
                 }
 
                 if (arg_count == 0) {
-                    parser_errorf(parser, "error: function \'%.*s\' : at least a single parameter must be passed\n",
-                            (int)len, base);
+                    parser_errorf(parser,
+                            "error: function \'%.*s\' : at least a single parameter must be passed\n",
+                            (int)len,
+                            base);
                     expr_free(left);
                     return NULL;
                 }
@@ -334,8 +338,9 @@ Expr *parse_primary(Parser *parser)
                 
                 if (!left->call.args_valid) {
                     parser_errorf(parser,
-                            "error: function \'%s\': argument count does not match function prototype\n",
-                            left->call.name);
+                            "error: function \'%.*s\': argument count does not match function prototype\n",
+                            (int)len,
+                            base);
                     expr_free(left);
                     return NULL;
                 }
@@ -348,7 +353,8 @@ Expr *parse_primary(Parser *parser)
 
                 if (!left->call.func) {
                     parser_errorf(parser, "error: unknown function '%s'\n",
-                            left->call.name);
+                            (int)len,
+                            base);
                     expr_free(left);
                     return NULL;
                 }
