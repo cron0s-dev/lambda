@@ -11,7 +11,7 @@
 #define PROMPT_SYM "λ"
 #define PROMPT_CHAR '>'
 #define PROMPT "%s%s%s %c ",\
-            COLOR_YELLOW,\
+            COLOR_MAGENTA,\
             PROMPT_SYM,\
             COLOR_RESET,\
             PROMPT_CHAR
@@ -36,7 +36,9 @@ char *get_input(void)
 
 char *get_input(void)
 {
-    char *line = readline(PROMPT);
+    char prompt[64];
+    snprintf(prompt, 64, PROMPT);
+    char *line = readline(prompt);
 
     if (line && *line)
         add_history(line);

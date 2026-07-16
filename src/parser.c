@@ -388,7 +388,7 @@ Expr *parse_primary(Parser *parser)
 
                 if (!left->call.func) {
                     parser_errorf(parser, "unknown function '%s%.*s%s'\n",
-                            COLOR_MAGENTA,
+                            COLOR_YELLOW,
                             (int)len,
                             base,
                             COLOR_RESET);
