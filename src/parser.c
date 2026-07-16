@@ -96,7 +96,7 @@ Expr *parse_expr(Parser *parser)
     return left;
 }
 
-bool starts_primary(TokenType t)
+bool starts_primary(TokenKind t)
 {
     return t == TOKEN_NUM   ||
            t == TOKEN_IDENT ||
