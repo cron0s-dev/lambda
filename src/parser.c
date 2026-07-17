@@ -43,8 +43,8 @@ static bool parser_advance(Parser *parser)
             "invalid token \'%s%.*s%s\'\n",
             COLOR_YELLOW,
             (int)parser->tok.len,
-            COLOR_RESET,
-            parser->tok.base);
+            parser->tok.base, 
+            COLOR_RESET);
 
         return false;
     }
