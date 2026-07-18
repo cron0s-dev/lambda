@@ -54,24 +54,25 @@ static bool parser_advance(Parser *parser)
 
 Expr *parse_assignment(Parser *parser)
 {
-    const char *base = parser->tok.base;
-    size_t len = parser->tok.len;
-
-    Expr *expr = parse_expr(parser);
+    Expr *left = parse_expr(parser);
 
     if (parser->tok.type == TOKEN_EQUAL) {
-        if (expr->type != EXPR_IDENT)
-            parser_errorf(parser,
-                    "invalid assignment target");
-
         parser_advance(parser);
 
-        Expr *value = parse_assignment(parser);
+        Expr *right = parse_assignment(parser);
 
-        return expr_assign(base, len, value);
+        if (left->type == EXPR_IDENT) {
+            return expr_assign(left->ident, strlen(left->ident), right);
+        }
+
+        if (right->type == EXPR_IDENT) {
+            return expr_assign(right->ident, strlen(right->ident), left);
+        }
+
+        parser_errorf(parser, "invalid assignment target");
     }
 
-    return expr;
+    return left;
 }
 
 Expr *parse_expr(Parser *parser)

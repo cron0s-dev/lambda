@@ -57,9 +57,7 @@ char *get_input(void)
 
 void print_error(const char *msg)
 {
-    putc('\n', stdout);
-    fprintf(stderr, " %serror:%s %s\n", COLOR_RED, COLOR_RESET, msg);
-    putc('\n', stdout);
+    fprintf(stderr, "\n %serror:%s %s\n\n", COLOR_RED, COLOR_RESET, msg);
 }
 
 void print_expr_result(const char* line, const Expr *expr)
@@ -67,11 +65,11 @@ void print_expr_result(const char* line, const Expr *expr)
     double result = eval_expr(expr);
 
     if (expr->type == EXPR_ASSIGN) {
-        printf("\nset variable %s to %s%.15g%s\n\n",
-                expr->assign.name,
+        printf("\n %s%.15g%s -> %s\n\n",
                 COLOR_CYAN,
                 result,
-                COLOR_RESET);
+                COLOR_RESET,
+                expr->assign.name);
     } else {
         printf("\n %s = %s%.15g%s\n\n",
                 line,
