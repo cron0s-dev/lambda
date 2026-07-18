@@ -125,7 +125,8 @@ int main(void)
 
         Expr *expr = parse_assignment(&parser);
         if (!expr) {
-            print_error(parser.error_msg);
+            if (parser.had_error)
+                print_error(parser.error_msg);
             continue;
         }
 
