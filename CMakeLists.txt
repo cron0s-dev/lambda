@@ -13,4 +13,6 @@ target_include_directories(lambda PRIVATE
     "external/"
 )
 
-target_link_libraries(lambda PRIVATE m readline)
+if (NOT WIN32)
+    target_link_libraries(lambda PRIVATE m readline)
+endif()
