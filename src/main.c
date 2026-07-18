@@ -1,8 +1,11 @@
 #include "ast.h"
+#include "func.h"
 #include "lexer.h"
 #include "parser.h"
 #include "eval.h"
 #include "color.h"
+#include "hash_map.h" 
+#include "util.h"
 
 #include <stdio.h>
 #include <stdlib.h>
@@ -15,6 +18,9 @@
             PROMPT_SYM,\
             COLOR_RESET,\
             PROMPT_CHAR
+
+HashMap *hm_const = NULL;
+HashMap *hm_func = NULL;
 
 #ifdef _WIN32
 
@@ -51,7 +57,7 @@ char *get_input(void)
 void print_error(const char *msg)
 {
     putc('\n', stdout);
-    fprintf(stderr, " %serror:%s %s", COLOR_RED, COLOR_RESET, msg);
+    fprintf(stderr, " %serror:%s %s\n", COLOR_RED, COLOR_RESET, msg);
     putc('\n', stdout);
 }
 
@@ -62,7 +68,7 @@ void print_expr_result(const char* line, const Expr *expr)
             COLOR_BOLD,
             COLOR_RESET,
             line,
-            COLOR_GREEN,
+            COLOR_CYAN,
             eval_expr(expr),
             COLOR_RESET);
     putc('\n', stdout);
@@ -75,6 +81,24 @@ void term_clear()
 
 int main(void)
 {
+    hm_const = hm_init(ARR_SIZE(constants));
+    if (!hm_const) {
+        print_error("failed to initialize hash table for constants");
+        return 1;
+    }
+
+    for (size_t i = 0; i < ARR_SIZE(constants); ++i)
+        hm_ins(hm_const, constants[i].name, &constants[i].value);
+
+    hm_func = hm_init(ARR_SIZE(constants));
+    if (!hm_func) {
+        print_error("failed to initialize hash table for functions");
+        return 2; 
+    }
+
+    for (size_t i = 0; i < ARR_SIZE(builtins); ++i)
+        hm_ins(hm_func, builtins[i].name, &builtins[i]);
+
     for (;;) {
 #ifdef _WIN32
         SetConsoleOutputCP(CP_UTF8);

@@ -40,7 +40,7 @@ static bool parser_advance(Parser *parser)
 
     if (parser->tok.type == TOKEN_INVALID) {
         parser_errorf(parser,
-            "invalid token \'%s%.*s%s\'\n",
+            "invalid token \'%s%.*s%s\'",
             COLOR_YELLOW,
             (int)parser->tok.len,
             parser->tok.base, 
@@ -63,7 +63,7 @@ Expr *parse_expr(Parser *parser)
     if (!left) {
         if (parser->tok.type != TOKEN_EOF)
             parser_errorf(parser,
-                    "expected expression before \'%s%c%s\'\n",
+                    "expected expression before \'%s%c%s\'",
                     COLOR_YELLOW,
                     op,
                     COLOR_RESET);
@@ -82,13 +82,13 @@ Expr *parse_expr(Parser *parser)
         if (!right) {
             if (parser->tok.type != TOKEN_EOF)
                 parser_errorf(parser,
-                        "expected expression after \'%s%c%s\'\n",
+                        "expected expression after \'%s%c%s\'",
                         COLOR_YELLOW,
                         op,
                         COLOR_RESET);
             else
                 parser_errorf(parser,
-                        "expected expression after \'%s%c%s\', got end of input\n",
+                        "expected expression after \'%s%c%s\', got end of input",
                         COLOR_YELLOW,
                         op,
                         COLOR_RESET);
@@ -123,7 +123,7 @@ Expr *parse_term(Parser *parser)
     if (!left) {
         if (parser->tok.type != TOKEN_EOF)
             parser_errorf(parser,
-                    "expected expression before \'%s%c%s\'\n",
+                    "expected expression before \'%s%c%s\'",
                     COLOR_YELLOW,
                     op,
                     COLOR_RESET);
@@ -149,13 +149,13 @@ Expr *parse_term(Parser *parser)
         if (!right) {
             if (parser->tok.type != TOKEN_EOF)
                 parser_errorf(parser,
-                        "expected expression after \'%s%c%s\'\n",
+                        "expected expression after \'%s%c%s\'",
                         COLOR_YELLOW,
                         op,
                         COLOR_RESET);
             else
                 parser_errorf(parser,
-                        "expected expression after \'%s%c%s\', got end of input\n",
+                        "expected expression after \'%s%c%s\', got end of input",
                         COLOR_YELLOW,
                         op,
                         COLOR_RESET);
@@ -183,7 +183,7 @@ Expr *parse_power(Parser *parser)
     if (!left) {
         if (parser->tok.type != TOKEN_EOF)
             parser_errorf(parser,
-                    "expected expression before \'%s%c%s\'\n",
+                    "expected expression before \'%s%c%s\'",
                     COLOR_YELLOW,
                     op,
                     COLOR_RESET);
@@ -200,13 +200,13 @@ Expr *parse_power(Parser *parser)
         if (!right) {
             if (parser->tok.type != TOKEN_EOF)
                 parser_errorf(parser,
-                        "expected expression after \'%s%c%s\'\n",
+                        "expected expression after \'%s%c%s\'",
                         COLOR_YELLOW,
                         op,
                         COLOR_RESET);
             else
                 parser_errorf(parser,
-                        "expected expression after \'%s%c%s\', got end of input\n",
+                        "expected expression after \'%s%c%s\', got end of input",
                         COLOR_YELLOW,
                         op,
                         COLOR_RESET);
@@ -255,7 +255,7 @@ Expr *parse_unary(Parser *parser)
 
         if (!operand) {
             parser_errorf(parser,
-                    "expected expression after \'%s%c%s\'\n",
+                    "expected expression after \'%s%c%s\'",
                     COLOR_YELLOW,
                     op,
                     COLOR_RESET);
@@ -314,7 +314,7 @@ Expr *parse_primary(Parser *parser)
 
                         if (!arg) {
                             parser_errorf(parser,
-                                    "function \'%s%.*s%s\': expected argument expression\n",
+                                    "function \'%s%.*s%s\': expected argument expression",
                                     COLOR_CYAN,
                                     (int)len,
                                     base,
@@ -337,12 +337,12 @@ Expr *parse_primary(Parser *parser)
                 if (parser->tok.type != TOKEN_RPAREN) {
                     if (parser->tok.type == TOKEN_EOF)
                         parser_errorf(parser,
-                                "expected '%s)%s', got end of input\n",
+                                "expected '%s)%s', got end of input",
                                 COLOR_YELLOW,
                                 COLOR_RESET);
                     else
                         parser_errorf(parser,
-                                "expected '%s)%s', got '%s%.*s%s'\n",
+                                "expected '%s)%s', got '%s%.*s%s'",
                                 COLOR_YELLOW,
                                 COLOR_RESET,
                                 COLOR_YELLOW,
@@ -355,7 +355,7 @@ Expr *parse_primary(Parser *parser)
 
                 if (arg_count == 0) {
                     parser_errorf(parser,
-                            "function \'%s%.*s%s\' : at least a single parameter must be passed\n",
+                            "function \'%s%.*s%s\' : at least a single parameter must be passed",
                             COLOR_CYAN,
                             (int)len,
                             base,
@@ -371,7 +371,7 @@ Expr *parse_primary(Parser *parser)
                 
                 if (!left->call.args_valid) {
                     parser_errorf(parser,
-                            "function \'%s%.*s%s\': argument count does not match function prototype\n",
+                            "function \'%s%.*s%s\': argument count does not match function prototype",
                             COLOR_CYAN,
                             (int)len,
                             base,
@@ -382,12 +382,12 @@ Expr *parse_primary(Parser *parser)
 
                 if (!left) {
                     parser_errorf(parser,
-                            "expected expression inside parentheses\n");
+                            "expected expression inside parentheses");
                     return NULL;
                 }
 
                 if (!left->call.func) {
-                    parser_errorf(parser, "unknown function '%s%.*s%s'\n",
+                    parser_errorf(parser, "unknown function '%s%.*s%s'",
                             COLOR_YELLOW,
                             (int)len,
                             base,
@@ -408,7 +408,7 @@ Expr *parse_primary(Parser *parser)
             if (!left) {
                 if (!parser->had_error) {
                     parser_errorf(parser,
-                            "expected expression inside parentheses\n");
+                            "expected expression inside parentheses");
                 }
                 return NULL;
             }
@@ -416,12 +416,12 @@ Expr *parse_primary(Parser *parser)
             if (parser->tok.type != TOKEN_RPAREN) {
                 if (parser->tok.type == TOKEN_EOF)
                     parser_errorf(parser,
-                            "expected '%s)%s', got end of input\n",
+                            "expected '%s)%s', got end of input",
                             COLOR_YELLOW,
                             COLOR_RESET);
                 else
                     parser_errorf(parser,
-                            "expected '%s)%s', got '%.*s'\n",
+                            "expected '%s)%s', got '%.*s'",
                             COLOR_YELLOW,
                             COLOR_RESET,
                             (int)parser->tok.len,

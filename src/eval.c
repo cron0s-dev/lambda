@@ -1,11 +1,14 @@
 #include "eval.h"
 #include "ast.h"
 #include "func.h"
+#include "hash_map.h"
 
 #include <math.h>
 #include <float.h>
 #include <string.h>
 #include <stdlib.h>
+
+extern HashMap *hm_const;
 
 double eval_expr(const Expr *expr)
 {
@@ -99,10 +102,9 @@ double eval_unary(const Expr *expr)
 
 double eval_ident(const Expr *expr)
 {
-    for (size_t i = 0; i < sizeof(constants) / sizeof(constants[0]); i++) {
-        if (strcmp(expr->ident, constants[i].name) == 0)
-            return constants[i].value;
-    }
+    double *p = hm_get(hm_const, expr->ident);
+    if (p)
+        return *p;
 
     return 0.0;
 }

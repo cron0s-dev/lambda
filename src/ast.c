@@ -1,7 +1,11 @@
 #include "ast.h"
+#include "func.h"
+#include "hash_map.h"
 
 #include <string.h>
 #include <stdlib.h>
+
+extern HashMap *hm_func;
 
 static char *slicetstr(const char *base, size_t len)
 {
@@ -54,7 +58,7 @@ Expr *expr_ident(const char *base, size_t len)
 Expr *expr_binary(char op, Expr *left, Expr *right)
 {
     if (!left || !right)
-        return NULL;
+       return NULL;
 
     Expr *expr = malloc(sizeof(*expr));
     if (!expr)
@@ -107,17 +111,13 @@ Expr *expr_call(const char *base, size_t len, Expr **args, size_t arg_count)
     expr->call.arg_count = arg_count;
     expr->call.args_valid = true;
 
-    for (size_t i = 0; i < sizeof(builtins) / sizeof(builtins[0]); i++) {
-        Builtin *builtin = &builtins[i];
+    Builtin *builtin = hm_get(hm_func, expr->call.name);
 
-        if (strcmp(expr->call.name, builtin->name) == 0) {
-            if (arg_count != builtins[i].arg_count &&
-                    builtins[i].arg_count >= 0)
-                expr->call.args_valid = false;
-            expr->call.func = builtin->func;
-            break;
-        }
-    }
+    if (arg_count != builtin->arg_count &&
+            builtin->arg_count >= 0)
+        expr->call.args_valid = false;
+
+    expr->call.func = builtin->func;
 
     return expr;
 }
