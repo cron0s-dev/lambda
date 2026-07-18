@@ -20,6 +20,7 @@
             PROMPT_CHAR
 
 HashMap *hm_const = NULL;
+HashMap *hm_var = NULL;
 HashMap *hm_func = NULL;
 
 #ifdef _WIN32
@@ -63,15 +64,21 @@ void print_error(const char *msg)
 
 void print_expr_result(const char* line, const Expr *expr)
 {
-    putc('\n', stdout);
-    printf(" %s%s%s = %s%.15g%s\n",
-            COLOR_BOLD,
-            COLOR_RESET,
-            line,
-            COLOR_CYAN,
-            eval_expr(expr),
-            COLOR_RESET);
-    putc('\n', stdout);
+    double result = eval_expr(expr);
+
+    if (expr->type == EXPR_ASSIGN) {
+        printf("\nset variable %s to %s%.15g%s\n\n",
+                expr->assign.name,
+                COLOR_CYAN,
+                result,
+                COLOR_RESET);
+    } else {
+        printf("\n %s = %s%.15g%s\n\n",
+                line,
+                COLOR_CYAN,
+                result,
+                COLOR_RESET);
+    }
 }
 
 void term_clear()
@@ -90,10 +97,16 @@ int main(void)
     for (size_t i = 0; i < ARR_SIZE(constants); ++i)
         hm_ins(hm_const, constants[i].name, &constants[i].value);
 
+    hm_var = hm_init(16);
+    if (!hm_var) {
+        print_error("failed to initialize hash table for variables");
+        return 2;
+    }
+
     hm_func = hm_init(ARR_SIZE(constants));
     if (!hm_func) {
         print_error("failed to initialize hash table for functions");
-        return 2; 
+        return 3; 
     }
 
     for (size_t i = 0; i < ARR_SIZE(builtins); ++i)
@@ -112,7 +125,7 @@ int main(void)
         Parser parser;
         parser_init(&parser, &lexer);
 
-        Expr *expr = parse_expr(&parser);
+        Expr *expr = parse_assignment(&parser);
         if (!expr) {
             print_error(parser.error_msg);
             continue;
@@ -142,6 +155,9 @@ int main(void)
 
         free(line);
     }
+    hm_free(hm_const);
+    hm_free(hm_var);
+    hm_free(hm_func);
     
     return 0;
 }

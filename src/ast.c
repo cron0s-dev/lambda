@@ -2,6 +2,7 @@
 #include "func.h"
 #include "hash_map.h"
 
+#include <stdio.h>
 #include <string.h>
 #include <stdlib.h>
 
@@ -153,4 +154,20 @@ void expr_free(Expr *expr)
     }
 
     free(expr);
+}
+
+Expr *expr_assign(const char *base, size_t len, Expr *value)
+{
+    if (!base || !value || len <= 0)
+        return NULL;
+
+    Expr *expr = malloc(sizeof(*expr));
+    if (!expr)
+        return NULL;
+
+    expr->type = EXPR_ASSIGN;
+    expr->assign.name = slicetstr(base, len);
+    expr->assign.value = value;
+
+    return expr;
 }

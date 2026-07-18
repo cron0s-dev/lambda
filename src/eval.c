@@ -9,6 +9,7 @@
 #include <stdlib.h>
 
 extern HashMap *hm_const;
+extern HashMap *hm_var;
 
 double eval_expr(const Expr *expr)
 {
@@ -32,6 +33,11 @@ double eval_expr(const Expr *expr)
 
         case EXPR_IDENT:
             res = eval_ident(expr);
+            break;
+
+        case EXPR_ASSIGN:
+            hm_ins(hm_var, expr->assign.name, expr->assign.value);
+            res = eval_expr(expr->assign.value);
             break;
     }
 
@@ -102,9 +108,13 @@ double eval_unary(const Expr *expr)
 
 double eval_ident(const Expr *expr)
 {
-    double *p = hm_get(hm_const, expr->ident);
-    if (p)
-        return *p;
+    double *const_var = hm_get(hm_const, expr->ident);
+    if (const_var)
+        return *const_var;
+
+    Expr *var = hm_get(hm_var, expr->ident);
+    if (var)
+        return eval_expr(var);
 
     return 0.0;
 }

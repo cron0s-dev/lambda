@@ -15,6 +15,7 @@ typedef struct {
 } Parser;
 
 void parser_init(Parser *p, Lexer *lexer);
+Expr *parse_assignment(Parser *parser);
 Expr *parse_expr(Parser *parser);
 Expr *parse_term(Parser *parser);
 Expr *parse_power(Parser *parser);

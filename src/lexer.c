@@ -107,9 +107,9 @@ static Token lex_op(Lexer *lexer)
         case ')':
             tok.type = TOKEN_RPAREN;
             break;
-        // case '=':
-        //     tok.type = TOKEN_EQUAL;
-        //     break;
+        case '=':
+            tok.type = TOKEN_EQUAL;
+            break;
         case ',':
             tok.type = TOKEN_COMMA;
             break;

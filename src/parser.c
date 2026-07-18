@@ -52,6 +52,28 @@ static bool parser_advance(Parser *parser)
     return true;
 }
 
+Expr *parse_assignment(Parser *parser)
+{
+    const char *base = parser->tok.base;
+    size_t len = parser->tok.len;
+
+    Expr *expr = parse_expr(parser);
+
+    if (parser->tok.type == TOKEN_EQUAL) {
+        if (expr->type != EXPR_IDENT)
+            parser_errorf(parser,
+                    "invalid assignment target");
+
+        parser_advance(parser);
+
+        Expr *value = parse_assignment(parser);
+
+        return expr_assign(base, len, value);
+    }
+
+    return expr;
+}
+
 Expr *parse_expr(Parser *parser)
 {
     char op = '\0';

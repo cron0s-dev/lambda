@@ -11,7 +11,8 @@ typedef enum {
     EXPR_IDENT,
     EXPR_BINARY,
     EXPR_UNARY,
-    EXPR_CALL
+    EXPR_CALL,
+    EXPR_ASSIGN
 } ExprType;
 
 typedef struct Expr {
@@ -40,6 +41,11 @@ typedef struct Expr {
             size_t arg_count;
             bool args_valid;
         } call;
+
+        struct {
+            char *name;
+            struct Expr *value;
+        } assign;
     };
 } Expr;
 
@@ -48,6 +54,7 @@ Expr *expr_ident(const char *base, size_t len);
 Expr *expr_binary(char op, Expr *left, Expr *right);
 Expr *expr_unary(char op, Expr *operand);
 Expr *expr_call(const char *base, size_t len, Expr **args, size_t arg_count);
+Expr *expr_assign(const char *base, size_t len, Expr *expr);
 void expr_free(Expr *expr);
 
 #endif
