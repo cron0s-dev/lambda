@@ -1,6 +1,5 @@
 #include "eval.h"
 #include "ast.h"
-#include "func.h"
 #include "hash_map.h"
 
 #include <math.h>
@@ -36,8 +35,11 @@ double eval_expr(const Expr *expr)
             break;
 
         case EXPR_ASSIGN:
-            hm_ins(hm_var, expr->assign.name, expr->assign.value);
             res = eval_expr(expr->assign.value);
+            if (res == 0)
+                hm_rm(hm_var, expr->assign.name);
+
+            hm_ins(hm_var, expr->assign.name, expr->assign.value);
             break;
     }
 
