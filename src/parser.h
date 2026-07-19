@@ -6,7 +6,8 @@
 
 #include <stdbool.h>
 
-typedef struct {
+typedef struct
+{
     Lexer lexer;
     Token tok;
 
@@ -14,7 +15,7 @@ typedef struct {
     char error_msg[256];
 } Parser;
 
-void parser_init(Parser *p, Lexer *lexer);
+void  parser_init(Parser *p, Lexer *lexer);
 Expr *parse_assignment(Parser *parser);
 Expr *parse_expr(Parser *parser);
 Expr *parse_term(Parser *parser);

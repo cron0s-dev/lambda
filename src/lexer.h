@@ -3,7 +3,8 @@
 
 #include <stdio.h>
 
-typedef enum {
+typedef enum
+{
     TOKEN_EOF,
     TOKEN_NUM,
     TOKEN_IDENT,
@@ -21,19 +22,21 @@ typedef enum {
     TOKEN_INVALID
 } TokenKind;
 
-typedef struct {
+typedef struct
+{
     const char *base;
-    size_t len;
-    TokenKind type;
+    size_t      len;
+    TokenKind   type;
 } Token;
 
-typedef struct {
+typedef struct
+{
     const char *src;
     const char *start;
     const char *p;
 } Lexer;
 
-void lex_init(Lexer *lexer, const char *src);
+void  lex_init(Lexer *lexer, const char *src);
 Token lex_next(Lexer *lexer);
 
 #endif

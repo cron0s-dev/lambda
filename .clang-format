@@ -1,0 +1,78 @@
+BasedOnStyle: LLVM
+
+Language: C
+
+# Indentation
+IndentWidth: 4
+TabWidth: 4
+UseTab: Never
+ContinuationIndentWidth: 4
+
+# Braces
+BreakBeforeBraces: Custom
+
+BraceWrapping:
+  AfterStruct: true
+  AfterEnum: true
+  AfterFunction: false
+  AfterControlStatement: Never
+  BeforeElse: false
+
+# Short statements
+AllowShortBlocksOnASingleLine: false
+AllowShortFunctionsOnASingleLine: Empty
+AllowShortIfStatementsOnASingleLine: false
+AllowShortLoopsOnASingleLine: false
+
+# Functions
+AlwaysBreakAfterReturnType: None
+BinPackParameters: false
+BinPackArguments: false
+AllowAllParametersOfDeclarationOnNextLine: false
+
+# Pointer style
+PointerAlignment: Right
+DerivePointerAlignment: false
+
+# Spaces
+SpaceBeforeParens: ControlStatements
+SpaceAfterCStyleCast: true
+SpacesInParentheses: false
+SpacesInSquareBrackets: false
+SpaceBeforeAssignmentOperators: true
+
+# Operators
+BreakBeforeBinaryOperators: None
+AlignOperands: Align
+
+# Alignment
+AlignConsecutiveDeclarations:
+  Enabled: true
+  AcrossEmptyLines: false
+  AcrossComments: false
+
+AlignConsecutiveAssignments:
+  Enabled: true
+  AcrossEmptyLines: false
+  AcrossComments: false
+
+AlignTrailingComments:
+  Kind: Always
+  OverEmptyLines: 1
+
+# Includes
+SortIncludes: Never
+IncludeBlocks: Preserve
+
+# Line length
+ColumnLimit: 100
+
+# Comments
+ReflowComments: false
+
+# Empty lines
+KeepEmptyLinesAtTheStartOfBlocks: false
+MaxEmptyLinesToKeep: 1
+
+# Case indentation
+IndentCaseLabels: true

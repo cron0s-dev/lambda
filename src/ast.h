@@ -1,12 +1,13 @@
 #ifndef AST_H
 #define AST_H
 
-#include "func.h" 
+#include "func.h"
 
 #include <stdio.h>
 #include <stdbool.h>
 
-typedef enum {
+typedef enum
+{
     EXPR_NUM,
     EXPR_IDENT,
     EXPR_BINARY,
@@ -15,7 +16,8 @@ typedef enum {
     EXPR_ASSIGN
 } ExprType;
 
-typedef struct Expr {
+typedef struct Expr
+{
     ExprType type;
 
     union {
@@ -23,27 +25,31 @@ typedef struct Expr {
 
         char *ident;
 
-        struct {
-            char op;
+        struct
+        {
+            char         op;
             struct Expr *left;
             struct Expr *right;
         } binary;
 
-        struct {
-            char op;
+        struct
+        {
+            char         op;
             struct Expr *operand;
         } unary;
 
-        struct {
-            char *name;
-            BuiltinFunc func;
+        struct
+        {
+            char         *name;
+            BuiltinFunc   func;
             struct Expr **args;
-            size_t arg_count;
-            bool args_valid;
+            size_t        arg_count;
+            bool          args_valid;
         } call;
 
-        struct {
-            char *name;
+        struct
+        {
+            char        *name;
             struct Expr *value;
         } assign;
     };
@@ -55,6 +61,6 @@ Expr *expr_binary(char op, Expr *left, Expr *right);
 Expr *expr_unary(char op, Expr *operand);
 Expr *expr_call(const char *base, size_t len, Expr **args, size_t arg_count);
 Expr *expr_assign(const char *base, size_t len, Expr *expr);
-void expr_free(Expr *expr);
+void  expr_free(Expr *expr);
 
 #endif

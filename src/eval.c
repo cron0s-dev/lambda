@@ -10,8 +10,7 @@
 extern HashMap *hm_const;
 extern HashMap *hm_var;
 
-double eval_expr(const Expr *expr)
-{
+double eval_expr(const Expr *expr) {
     double res = 0.0;
     switch (expr->type) {
         case EXPR_NUM:
@@ -46,9 +45,8 @@ double eval_expr(const Expr *expr)
     return res;
 }
 
-double eval_binary(const Expr *expr)
-{
-    double left = eval_expr(expr->binary.left);
+double eval_binary(const Expr *expr) {
+    double left  = eval_expr(expr->binary.left);
     double right = eval_expr(expr->binary.right);
 
     switch (expr->binary.op) {
@@ -71,8 +69,7 @@ double eval_binary(const Expr *expr)
     return 0.0;
 }
 
-double eval_call(const Expr *expr)
-{
+double eval_call(const Expr *expr) {
     double val = 0.0;
 
     double args[expr->call.arg_count];
@@ -87,8 +84,7 @@ double eval_call(const Expr *expr)
     return val;
 }
 
-double eval_unary(const Expr *expr)
-{
+double eval_unary(const Expr *expr) {
     double operand = eval_expr(expr->unary.operand);
 
     switch (expr->unary.op) {
@@ -102,14 +98,13 @@ double eval_unary(const Expr *expr)
             return tgamma(operand + 1.0);
 
         default:
-            return operand; 
+            return operand;
     }
 
     return 0.0;
 }
 
-double eval_ident(const Expr *expr)
-{
+double eval_ident(const Expr *expr) {
     double *const_var = hm_get(hm_const, expr->ident);
     if (const_var)
         return *const_var;

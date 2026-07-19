@@ -12,46 +12,46 @@
 #define FNV_OFFSET 14695981039346656037UL
 #define FNV_PRIME 1099511628211UL
 
-typedef struct Entry {
-    char *key;
-    void *value;
+typedef struct Entry
+{
+    char  *key;
+    void  *value;
     size_t value_size;
 
     struct Entry *next;
 } Entry;
 
-typedef struct {
+typedef struct
+{
     Entry **buckets;
-    size_t capacity;
-    size_t size;
+    size_t  capacity;
+    size_t  size;
 } HashMap;
 
 static uint64_t hm_hash(const char *key);
-HashMap *hm_init(size_t capacity);
-void hm_free(HashMap *map);
-int hm_grow(HashMap *map);
-bool hm_ins(HashMap *map, const char *key, void *value, size_t value_size);
-void *hm_get(const HashMap *map, const char *key);
-bool hm_rm(HashMap *map, const char *key);
+HashMap        *hm_init(size_t capacity);
+void            hm_free(HashMap *map);
+int             hm_grow(HashMap *map);
+bool            hm_ins(HashMap *map, const char *key, void *value, size_t value_size);
+void           *hm_get(const HashMap *map, const char *key);
+bool            hm_rm(HashMap *map, const char *key);
 
 #ifdef HM_IMPLEMENTATION
 
-static uint64_t hm_hash(const char *key)
-{
+static uint64_t hm_hash(const char *key) {
     if (!key)
         return 0;
 
     uint64_t hash = FNV_OFFSET;
     for (const char *p = key; *p; ++p) {
-        hash ^= (uint64_t)(unsigned char)(*p);
+        hash ^= (uint64_t) (unsigned char) (*p);
         hash *= FNV_PRIME;
     }
 
     return hash;
 }
 
-HashMap *hm_init(size_t capacity)
-{
+HashMap *hm_init(size_t capacity) {
     if (!capacity)
         return NULL;
 
@@ -66,17 +66,16 @@ HashMap *hm_init(size_t capacity)
     }
 
     map->capacity = capacity;
-    map->size = 0;
+    map->size     = 0;
     return map;
 }
 
-void hm_free(HashMap *map)
-{
+void hm_free(HashMap *map) {
     if (!map)
         return;
 
     for (size_t i = 0; i < map->capacity; ++i) {
-        Entry * entry = map->buckets[i];
+        Entry *entry = map->buckets[i];
         while (entry) {
             Entry *next = entry->next;
 
@@ -88,25 +87,24 @@ void hm_free(HashMap *map)
     }
 
     free(map->buckets);
-    free (map);
+    free(map);
 }
 
-int hm_grow(HashMap *map)
-{
-    size_t new_capacity = map->capacity * 2;
-    Entry **buckets = calloc(new_capacity, sizeof(*map->buckets));
+int hm_grow(HashMap *map) {
+    size_t  new_capacity = map->capacity * 2;
+    Entry **buckets      = calloc(new_capacity, sizeof(*map->buckets));
     if (!buckets)
         return -1;
 
     for (size_t i = 0; i < map->capacity; ++i) {
         Entry *entry = map->buckets[i];
 
-        while(entry) {
+        while (entry) {
             Entry *next = entry->next;
 
             size_t idx = hm_hash(entry->key) % new_capacity;
 
-            entry->next = buckets[idx];
+            entry->next  = buckets[idx];
             buckets[idx] = entry;
 
             entry = next;
@@ -114,14 +112,13 @@ int hm_grow(HashMap *map)
     }
 
     free(map->buckets);
-    map->buckets = buckets;
+    map->buckets  = buckets;
     map->capacity = new_capacity;
 
     return 0;
 }
 
-bool hm_ins(HashMap *map, const char *key, void *value, size_t value_size)
-{
+bool hm_ins(HashMap *map, const char *key, void *value, size_t value_size) {
     if (!map || !key || !value)
         return false;
 
@@ -141,7 +138,7 @@ bool hm_ins(HashMap *map, const char *key, void *value, size_t value_size)
             memcpy(copy, value, value_size);
 
             free(e->value);
-            e->value = copy;
+            e->value      = copy;
             e->value_size = value_size;
 
             return true;
@@ -152,7 +149,7 @@ bool hm_ins(HashMap *map, const char *key, void *value, size_t value_size)
     if (!entry)
         return false;
 
-    entry->key = strdup(key);
+    entry->key   = strdup(key);
     entry->value = malloc(value_size);
     if (!entry->value) {
         free(entry->key);
@@ -163,7 +160,7 @@ bool hm_ins(HashMap *map, const char *key, void *value, size_t value_size)
     memcpy(entry->value, value, value_size);
     entry->value_size = value_size;
 
-    entry->next = map->buckets[idx];
+    entry->next       = map->buckets[idx];
     map->buckets[idx] = entry;
 
     ++map->size;
@@ -171,8 +168,7 @@ bool hm_ins(HashMap *map, const char *key, void *value, size_t value_size)
     return true;
 }
 
-void *hm_get(const HashMap *map, const char *key)
-{
+void *hm_get(const HashMap *map, const char *key) {
     if (!map || !key)
         return NULL;
 
@@ -186,8 +182,7 @@ void *hm_get(const HashMap *map, const char *key)
     return NULL;
 }
 
-bool hm_rm(HashMap *map, const char *key)
-{
+bool hm_rm(HashMap *map, const char *key) {
     if (!map || !key)
         return false;
 
@@ -202,7 +197,7 @@ bool hm_rm(HashMap *map, const char *key)
                 prev->next = curr->next;
             else
                 map->buckets[idx] = curr->next;
-            
+
             free(curr->key);
             free(curr->value);
             free(curr);
