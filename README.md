@@ -8,15 +8,17 @@
 
 ```bash
 git clone https://github.com/cron0s-dev/lambda.git
+cd ./lambda
 cmake -B build -G Ninja
 cd build
 ninja
 ```
 
-or alternatively if you don't have Ninja
+or alternatively if you don't have Ninja installed
 
 ```bash
 git clone https://github.com/cron0s-dev/lambda.git
+cd ./lambda
 cmake -B build
 cd build
 make
