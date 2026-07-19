@@ -104,6 +104,8 @@ Expr *expr_call(const char *base, size_t len, Expr **args, size_t arg_count) {
     expr->call.args_valid = true;
 
     Builtin *builtin = hm_get(hm_func, expr->call.name);
+    if (!builtin)
+        return expr;
 
     if (arg_count != builtin->arg_count && builtin->arg_count >= 0)
         expr->call.args_valid = false;
@@ -132,6 +134,7 @@ void expr_free(Expr *expr) {
             break;
 
         case EXPR_CALL:
+            free(expr->call.name);
             for (size_t i = 0; i < expr->call.arg_count; i++)
                 expr_free(expr->call.args[i]);
             free(expr->call.args);
