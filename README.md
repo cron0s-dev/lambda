@@ -19,7 +19,7 @@ or alternatively if you don't have Ninja installed
 ```bash
 git clone https://github.com/cron0s-dev/lambda.git
 cd ./lambda
-cmake -B build -G "Unix Makefiles" -DCMAKE_C_COMPILER=gcc
+cmake -B build -G "MinGW Makefiles" -DCMAKE_C_COMPILER=gcc
 cd build
 make
 ```
