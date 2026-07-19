@@ -2,7 +2,7 @@
 > A cross-platform recursive-descent math interpreter written in C.
 ## 📸 Preview
 
-
+![Demo](./demo/demo.gif)
 
 ## 📦 Build
 
