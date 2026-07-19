@@ -1,4 +1,4 @@
-# λ Lambda
+# Lambda λ
 > A cross-platform recursive-descent math interpreter written in C.
 ## 📸 Preview
 
