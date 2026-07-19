@@ -143,10 +143,14 @@ void expr_free(Expr *expr)
             break;
 
         case EXPR_CALL:
-            // free(expr->call.name);
             for (size_t i = 0; i < expr->call.arg_count; i++)
                 expr_free(expr->call.args[i]);
             free(expr->call.args);
+            break;
+
+        case EXPR_ASSIGN:
+            free(expr->assign.name);
+            free(expr->assign.value);
             break;
         
         default:

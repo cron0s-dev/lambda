@@ -93,7 +93,7 @@ int main(void)
     }
 
     for (size_t i = 0; i < ARR_SIZE(constants); ++i)
-        hm_ins(hm_const, constants[i].name, &constants[i].value);
+        hm_ins(hm_const, constants[i].name, &constants[i].value, sizeof(constants->value));
 
     hm_var = hm_init(16);
     if (!hm_var) {
@@ -108,7 +108,7 @@ int main(void)
     }
 
     for (size_t i = 0; i < ARR_SIZE(builtins); ++i)
-        hm_ins(hm_func, builtins[i].name, &builtins[i]);
+        hm_ins(hm_func, builtins[i].name, &builtins[i], sizeof(*builtins));
 
     for (;;) {
 #ifdef _WIN32

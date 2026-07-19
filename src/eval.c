@@ -39,7 +39,7 @@ double eval_expr(const Expr *expr)
             if (res == 0)
                 hm_rm(hm_var, expr->assign.name);
 
-            hm_ins(hm_var, expr->assign.name, expr->assign.value);
+            hm_ins(hm_var, expr->assign.name, &res, sizeof(res));
             break;
     }
 
@@ -114,9 +114,9 @@ double eval_ident(const Expr *expr)
     if (const_var)
         return *const_var;
 
-    Expr *var = hm_get(hm_var, expr->ident);
+    double *var = hm_get(hm_var, expr->ident);
     if (var)
-        return eval_expr(var);
+        return *var;
 
     return 0.0;
 }

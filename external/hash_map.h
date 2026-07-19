@@ -15,6 +15,7 @@
 typedef struct Entry {
     char *key;
     void *value;
+    size_t value_size;
 
     struct Entry *next;
 } Entry;
@@ -29,7 +30,7 @@ static uint64_t hm_hash(const char *key);
 HashMap *hm_init(size_t capacity);
 void hm_free(HashMap *map);
 int hm_grow(HashMap *map);
-bool hm_ins(HashMap *map, const char *key, void *value);
+bool hm_ins(HashMap *map, const char *key, void *value, size_t value_size);
 void *hm_get(const HashMap *map, const char *key);
 bool hm_rm(HashMap *map, const char *key);
 
@@ -119,7 +120,7 @@ int hm_grow(HashMap *map)
     return 0;
 }
 
-bool hm_ins(HashMap *map, const char *key, void *value)
+bool hm_ins(HashMap *map, const char *key, void *value, size_t value_size)
 {
     if (!map || !key || !value)
         return false;
@@ -133,7 +134,16 @@ bool hm_ins(HashMap *map, const char *key, void *value)
 
     for (Entry *e = map->buckets[idx]; e; e = e->next) {
         if (strcmp(e->key, key) == 0) {
-            e->value = value;
+            void *copy = malloc(value_size);
+            if (!copy)
+                return false;
+
+            memcpy(copy, value, value_size);
+
+            free(e->value);
+            e->value = copy;
+            e->value_size = value_size;
+
             return true;
         }
     }
@@ -143,7 +153,15 @@ bool hm_ins(HashMap *map, const char *key, void *value)
         return false;
 
     entry->key = strdup(key);
-    entry->value = value;
+    entry->value = malloc(value_size);
+    if (!entry->value) {
+        free(entry->key);
+        free(entry);
+        return false;
+    }
+
+    memcpy(entry->value, value, value_size);
+    entry->value_size = value_size;
 
     entry->next = map->buckets[idx];
     map->buckets[idx] = entry;
@@ -186,6 +204,7 @@ bool hm_rm(HashMap *map, const char *key)
                 map->buckets[idx] = curr->next;
             
             free(curr->key);
+            free(curr->value);
             free(curr);
 
             --map->size;
