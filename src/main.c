@@ -113,8 +113,14 @@ int main(void) {
         }
 
         if (expr->type == EXPR_IDENT && strcmp(expr->ident, "var") == 0) {
-            for (size_t i = 0; i < sizeof(constants) / sizeof(constants[0]); i++)
+            for (size_t i = 0; i < ARR_SIZE(constants); i++)
                 printf("%s = %.17g\n", constants[i].name, constants[i].value);
+            continue;
+        }
+
+        if (expr->type == EXPR_IDENT && strcmp(expr->ident, "func") == 0) {
+            for (size_t i = 0; i < ARR_SIZE(builtins); i++)
+                printf("%s\n", builtins[i].name);
             continue;
         }
 
